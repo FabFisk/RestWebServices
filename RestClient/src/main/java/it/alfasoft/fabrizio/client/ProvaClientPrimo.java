@@ -9,6 +9,7 @@ import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.GenericType;
+import javax.ws.rs.core.Request;
 import javax.ws.rs.core.Response;
 
 public class ProvaClientPrimo {
@@ -46,7 +47,7 @@ public class ProvaClientPrimo {
 //		}
 //
 //		System.out.println(responsePost.getStatus());
-		
+
 		Response response=dipTarget
         		.request()
         		.get();
