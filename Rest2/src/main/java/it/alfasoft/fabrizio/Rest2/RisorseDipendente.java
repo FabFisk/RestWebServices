@@ -3,6 +3,7 @@ package it.alfasoft.fabrizio.Rest2;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
@@ -11,14 +12,18 @@ import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
+import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
+import javax.ws.rs.core.UriInfo;
 
 import it.alfasoft.fabrizio.dao.DipendenteDao;
 import it.alfasoft.fabrizio.model.Dipendente;
+import it.alfasoft.fabrizio.model.Link;
 
 @Path("dipendenti")
+@Produces(MediaType.APPLICATION_JSON)
 public class RisorseDipendente {
 	
 	private DipendenteDao ddao=new DipendenteDao();
@@ -32,7 +37,7 @@ public class RisorseDipendente {
 //	}
 	
 	@GET
-	@Produces(MediaType.APPLICATION_JSON)
+//	@Produces(MediaType.APPLICATION_JSON)
 	public List<Dipendente> getDipendenti(){
 			
 		return new ArrayList<Dipendente>(ddao.getDipendenti().values());
@@ -49,14 +54,30 @@ public class RisorseDipendente {
 	//Prendere un dipendente con json
 	@Path("/{codiceDipendente}")
 	@GET
-	@Produces(MediaType.APPLICATION_JSON)
-	public Dipendente getDipendenteByCode(@PathParam("codiceDipendente") String codiceDipendente){
+//	@Produces(MediaType.APPLICATION_JSON)
+	public Dipendente getDipendenteByCode(
+			@PathParam("codiceDipendente") String codiceDipendente,
+										@Context UriInfo uriInfo){
 		
-		return ddao.getDipendenti().get(codiceDipendente);
+		Dipendente d = ddao.getDipendenti().get(codiceDipendente);
+		String link = uriInfo.getBaseUriBuilder()
+				.path(RisorseDipendente.class)
+				.path(codiceDipendente)
+				.build()
+				.toString();
+		d.addLink(link, "self");	
+		String linkBuste = uriInfo.getBaseUriBuilder()
+				.path(RisorseDipendente.class)
+				.path(codiceDipendente)
+				.path("bustepaghe")
+				.build()
+				.toString();
+		d.addLink(linkBuste, "buste");
+		return d;
 	}
 	
 	@POST
-	@Produces(MediaType.APPLICATION_JSON)
+	@Consumes(MediaType.APPLICATION_JSON)
 	public Response addDipendente(Dipendente d){
 		
 		ddao.getDipendenti().put(d.getCodice(), d);
@@ -67,7 +88,7 @@ public class RisorseDipendente {
 	}
 	
 	@PUT
-	@Produces(MediaType.APPLICATION_JSON)
+//	@Produces(MediaType.APPLICATION_JSON)
 	public void updateDipendente(Dipendente d){
 		
 		ddao.getDipendenti().put(d.getCodice(), d);
@@ -78,7 +99,7 @@ public class RisorseDipendente {
 	
 	@Path("/{codiceDipendente}")
 	@DELETE
-	@Produces(MediaType.APPLICATION_JSON)
+//	@Produces(MediaType.APPLICATION_JSON)
 	public void deleteDipendente(@PathParam("codiceDipendente") String codice){
 		
 		ddao.getDipendenti().remove(codice);
